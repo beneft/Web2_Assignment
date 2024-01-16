@@ -61,11 +61,12 @@ app.post('/login', async (req, res) => {
                 req.session.user = username;
                 res.redirect('/');
             } else {
-                // Invalid credentials
-                res.status(401).send('Invalid username or password');
+                message='Incorrect password or username';
+                res.status(401).render('mistake',{message:message});
             }
         } else {
-            res.status(401).send('User not found');
+            message='Incorrect password or username';
+            res.status(401).render('mistake',{message:message});
         }
     } catch (error) {
         console.error(error);
@@ -90,7 +91,8 @@ app.post('/register', async (req, res) => {
     } catch (error) {
         // Handle registration error
         if (error.code === '23505') {
-            return res.status(400).send('Username already exists. Please choose a different username.');
+            message='User with such username already exsits';
+            return res.status(400).render('mistake',{message:message});
         }
         res.status(500).send('Error registering user');
     } finally {
