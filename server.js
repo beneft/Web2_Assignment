@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const { body, validationResult } = require('express-validator');
 const pg = require('pg');
 const config = require('./config');
 const bcrypt = require('bcrypt');
@@ -80,7 +81,15 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', [
+    body('password')
+        .isStrongPassword()
+        .withMessage('Invalid register regex')
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).render('mistake',{message:'Password is not strong enough'})
+    }
     const { username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, config.bcrypt.saltRounds);
     const client = await pool.connect();
